@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#173f37">
+  <title>Procella OVK – Ventilation med full kontroll</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <section class="auth-gate" id="authGate" aria-labelledby="authTitle">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <img src="assets/procella-logo.jpg" alt="Procella Ventilation">
+        <div><strong>PROCELLA OVK</strong><small>Säker ventilationsdokumentation</small></div>
+      </div>
+      <div class="auth-copy">
+        <p class="eyebrow">VÄLKOMMEN</p>
+        <h1 id="authTitle">Logga in</h1>
+        <p id="authIntro">Använd ditt personliga konto för att öppna OVK-portalen.</p>
+      </div>
+      <form id="authForm">
+        <label>E-postadress<input id="authEmail" type="email" autocomplete="email" required></label>
+        <label>Lösenord<input id="authPassword" type="password" autocomplete="current-password" minlength="8" required></label>
+        <button class="primary-button auth-submit" id="authSubmit" type="submit">Logga in</button>
+      </form>
+      <p class="auth-message" id="authMessage" role="status"></p>
+      <button class="auth-switch" id="authSwitch" type="button">Skapa konto från inbjudan</button>
+      <button class="demo-link" id="demoMode" type="button" hidden>Fortsätt till prototypen med exempeldata</button>
+      <small class="auth-security">Skyddad tjänst från Procella Ventilation AB</small>
+    </div>
+  </section>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#" aria-label="Procella OVK startsida">
+        <span class="brand-logo-crop" aria-hidden="true"><img src="assets/procella-logo.jpg" alt=""></span>
+        <span><strong>PROCELLA</strong><small>OVK PORTAL</small></span>
+      </a>
+
+      <nav aria-label="Huvudmeny">
+        <button class="nav-link active" data-view="overview"><span class="nav-icon">⌂</span>Översikt</button>
+        <button class="nav-link" data-view="properties"><span class="nav-icon">▦</span>Fastigheter</button>
+        <button class="nav-link" data-view="inspections"><span class="nav-icon">✓</span>Besiktningar</button>
+        <button class="nav-link" data-view="changes"><span class="nav-icon">↻</span>Förändringar <b class="nav-badge">3</b></button>
+        <button class="nav-link" data-view="messages"><span class="nav-icon">✉</span>Meddelanden <b class="message-nav-badge" hidden>0</b></button>
+        <button class="nav-link" data-view="documents"><span class="nav-icon">▤</span>Dokument</button>
+      </nav>
+
+      <div class="side-bottom">
+        <button class="nav-link" data-view="settings"><span class="nav-icon">⚙</span>Inställningar</button>
+        <div class="procella-card">
+          <img class="procella-logo-full" src="assets/procella-logo.jpg" alt="Procella Ventilation">
+          <p>En tjänst utvecklad av</p>
+          <strong>Procella Ventilation AB</strong>
+          <small>Frisk luft. Full kontroll.</small>
+          <a href="https://procellavent.se" target="_blank" rel="noopener">procellavent.se ↗</a>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="menu-button" id="menuButton" aria-label="Öppna meny">☰</button>
+        <div class="crumb"><span>BRF</span><strong>Brf Solgläntan</strong><button aria-label="Byt förening">⌄</button></div>
+        <div class="top-actions">
+          <button class="icon-button" aria-label="Sök">⌕</button>
+          <button class="icon-button notification" aria-label="Notiser">♢<i></i></button>
+          <div class="avatar">KL</div>
+          <div class="user"><strong>Karin Lind</strong><small>Styrelseordförande</small></div>
+          <button class="logout-button" id="logoutButton" type="button" hidden>Logga ut</button>
+        </div>
+      </header>
+
+      <div class="demo-banner" id="demoBanner" hidden>Prototypläge – uppgifterna på sidan är påhittade exempeldata.</div>
+
+      <section class="view active" id="overview">
+        <div class="page-heading">
+          <div><p class="eyebrow">LÖRDAG 21 JUNI</p><h1>God morgon, Karin</h1><p>Här är läget för föreningens ventilation just nu.</p></div>
+          <div class="page-actions">
+            <button class="secondary-button" id="addPilotBrf" type="button">＋ Lägg till BRF</button>
+            <button class="secondary-button import-button" id="importOvk" type="button">⇩ Importera OVK</button>
+            <button class="primary-button" id="newInspection">＋ Ny besiktning</button>
+          </div>
+        </div>
+
+        <div class="alert-banner">
+          <div class="alert-symbol">!</div>
+          <div><strong>3 förändringar behöver granskas</strong><p>Bildjämförelsen har hittat möjliga ändringar sedan föregående OVK.</p></div>
+          <button data-go="changes">Granska nu <span>→</span></button>
+        </div>
+
+        <div class="stats-grid">
+          <article class="stat-card"><div class="stat-icon green">▦</div><div><span>Fastigheter</span><strong>3</strong><small>6 trapphus</small></div></article>
+          <article class="stat-card"><div class="stat-icon blue">⌂</div><div><span>Lägenheter</span><strong>84</strong><small>79 dokumenterade</small></div><div class="ring" style="--progress:94"><span>94%</span></div></article>
+          <article class="stat-card"><div class="stat-icon amber">✓</div><div><span>Senaste OVK</span><strong class="date-stat">14 mars 2024</strong><small class="success">● Godkänd</small></div></article>
+          <article class="stat-card"><div class="stat-icon coral">◷</div><div><span>Nästa OVK</span><strong class="date-stat">Mars 2027</strong><small>Om 9 månader</small></div></article>
+        </div>
+
+        <div class="content-grid">
+          <article class="panel building-panel">
+            <div class="panel-head"><div><h2>Fastigheter</h2><p>Dokumentationsgrad per fastighet</p></div><button data-go="properties">Visa alla →</button></div>
+            <div class="building-list" id="buildingList"></div>
+          </article>
+
+          <article class="panel activity-panel">
+            <div class="panel-head"><div><h2>Senaste aktivitet</h2><p>Det som hänt i föreningen</p></div><button>Visa historik →</button></div>
+            <div class="timeline">
+              <div class="timeline-item"><span class="timeline-icon photo">▧</span><div><strong>Nya bilder uppladdade</strong><p>Lägenhet A-1203 · Kök</p><small>Idag, 09:42 · Johan, Procella</small></div></div>
+              <div class="timeline-item"><span class="timeline-icon warning">!</span><div><strong>Möjlig förändring upptäckt</strong><p>Lägenhet B-1102 · Badrum</p><small>Igår, 15:18 · Automatisk jämförelse</small></div></div>
+              <div class="timeline-item"><span class="timeline-icon done">✓</span><div><strong>Åtgärd markerad klar</strong><p>Lägenhet C-1301 · Sovrum</p><small>19 juni, 11:05 · Anna, Styrelsen</small></div></div>
+              <div class="timeline-item"><span class="timeline-icon note">▤</span><div><strong>Protokoll tillagt</strong><p>OVK 2024 · Slutprotokoll</p><small>18 juni, 08:31 · Procella Ventilation</small></div></div>
+            </div>
+          </article>
+        </div>
+
+        <article class="panel status-panel">
+          <div class="status-illustration"><span></span><i></i><b></b></div>
+          <div><span class="status-chip">OVK 2024</span><h2>Föreningens ventilation är godkänd</h2><p>Samtliga obligatoriska åtgärder är slutförda. 7 rekommendationer återstår inför nästa besiktning.</p></div>
+          <button class="secondary-button">Öppna protokoll ↗</button>
+        </article>
+      </section>
+
+      <section class="view" id="properties">
+        <div class="page-heading compact"><div><p class="eyebrow">FASTIGHETER</p><h1>Alla lägenheter</h1><p>Rum, ventilationsdon och dokumentation samlat på ett ställe.</p></div><button class="primary-button" id="addApartment">＋ Lägg till lägenhet</button></div>
+        <div class="toolbar"><label class="search-field">⌕ <input id="apartmentSearch" placeholder="Sök lägenhet eller boende"></label><select id="buildingFilter"><option value="all">Alla adresser</option><option>Solvägen 2</option><option>Solvägen 4</option><option>Parkgatan 8</option></select></div>
+        <div class="apartment-grid" id="apartmentGrid"></div>
+      </section>
+
+      <section class="view" id="inspections">
+        <div class="page-heading compact"><div><p class="eyebrow">BESIKTNINGAR</p><h1>OVK-historik</h1><p>Protokoll, mätningar och åtgärder över tid.</p></div><button class="primary-button">＋ Planera besiktning</button></div>
+        <div class="inspection-table panel">
+          <div class="table-row table-head"><span>Besiktning</span><span>Datum</span><span>Omfattning</span><span>Resultat</span><span></span></div>
+          <div class="table-row"><span><strong>Ordinarie OVK 2024</strong><small>Procella Ventilation AB</small></span><span>14 mars 2024</span><span>84 lägenheter</span><span><b class="pill approved">Godkänd</b></span><button>Öppna →</button></div>
+          <div class="table-row"><span><strong>Efterkontroll 2021</strong><small>Procella Ventilation AB</small></span><span>7 juni 2021</span><span>12 lägenheter</span><span><b class="pill approved">Godkänd</b></span><button>Öppna →</button></div>
+          <div class="table-row"><span><strong>Ordinarie OVK 2021</strong><small>Ventpartner AB</small></span><span>22 februari 2021</span><span>84 lägenheter</span><span><b class="pill issue">Anmärkningar</b></span><button>Öppna →</button></div>
+        </div>
+      </section>
+
+      <section class="view" id="changes">
+        <div class="page-heading compact"><div><p class="eyebrow">FÖRÄNDRINGAR</p><h1>Granska avvikelser</h1><p>Jämför dokumentationen och avgör om något har förändrats.</p></div></div>
+        <div class="review-layout">
+          <div class="change-list panel" id="changeList"></div>
+          <div class="comparison panel" id="comparison"></div>
+        </div>
+      </section>
+
+      <section class="view" id="messages"></section>
+
+      <section class="view empty-view" id="documents"><div class="empty-icon">▤</div><h1>Dokument</h1><p>Här kommer föreningens OVK-protokoll, ritningar och intyg att samlas.</p><button class="primary-button">＋ Ladda upp dokument</button></section>
+      <section class="view empty-view" id="settings"><div class="empty-icon">⚙</div><h1>Inställningar</h1><p>Hantera föreningsuppgifter, användare och Procella-kontakt.</p><button class="primary-button">Hantera användare</button></section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="modalBackdrop" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal-close" id="modalClose" aria-label="Stäng">×</button>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+  <div class="toast" id="toast">Sparat</div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="notification-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="app.js"></script>
+  <script type="module">
+    import * as pdfjsLib from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs';
+    window.pdfjsLib = pdfjsLib;
+  </script>
+  <script src="ovk-import.js"></script>
+  <script src="live-data.js"></script>
+  <script src="apartment-detail.js"></script>
+  <script src="user-manager.js"></script>
+  <script src="notifications.js"></script>
+  <script src="billing.js"></script>
+  <script src="messaging.js"></script>
+</body>
+</html>
