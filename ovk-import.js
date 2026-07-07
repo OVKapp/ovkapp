@@ -69,6 +69,9 @@
           <label class="full">OVK-protokoll
             <input name="file" id="ovkFile" type="file" accept=".pdf,.txt,.csv,text/plain,text/csv,application/pdf">
           </label>
+          <div class="full">
+            <button type="button" class="secondary-button ovk-camera-button" data-start-camera-import>📷 Ta bild</button>
+          </div>
           <label>Besiktningsdatum<input name="inspection_date" type="date" value="${today()}"></label>
           <label>Nästa OVK<input name="next_due_date" type="date" value="${plusYears(3)}"></label>
           <label class="full">Besiktningsföretag<input name="inspector_company" value="Procella Ventilation AB"></label>
@@ -85,6 +88,85 @@
         </div>
       </form>
     `);
+  }
+
+  function isMobileDevice() {
+    return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+  }
+
+  function openImportWithCapturedFile(file) {
+    showImportDialog();
+    const fileInput = document.querySelector('#ovkFile');
+    if (!fileInput) return;
+    const transfer = new DataTransfer();
+    transfer.items.add(file);
+    fileInput.files = transfer.files;
+    const form = document.querySelector('#ovkAnalyzeForm');
+    if (form?.requestSubmit) form.requestSubmit();
+    else form?.dispatchEvent(new Event('submit', { cancelable: true }));
+  }
+
+  function showCameraUnsupported(message) {
+    window.procellaApp.showToast(message || 'Ingen kamera kunde hittas. Välj en bild eller fil manuellt.');
+    showImportDialog();
+  }
+
+  function triggerNativeCameraInput() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.capture = 'environment';
+    input.addEventListener('change', () => {
+      const file = input.files[0];
+      if (file) openImportWithCapturedFile(file);
+    });
+    input.click();
+  }
+
+  function showCameraCapture(stream) {
+    const stopStream = () => stream.getTracks().forEach(track => track.stop());
+    window.procellaApp.openModal(`
+      <p class="eyebrow">KAMERA</p>
+      <h2 id="modalTitle">Ta bild på OVK-protokoll</h2>
+      <p class="subtitle">Rikta kameran mot protokollet och ta en bild.</p>
+      <div class="camera-preview"><video id="cameraVideo" autoplay playsinline muted></video></div>
+      <div class="modal-footer">
+        <button type="button" class="secondary-button" id="cameraCancel">Avbryt</button>
+        <button class="primary-button" id="cameraShoot">📷 Ta foto</button>
+      </div>
+    `);
+    const video = document.querySelector('#cameraVideo');
+    video.srcObject = stream;
+    document.querySelector('#cameraCancel').addEventListener('click', () => {
+      stopStream();
+      window.procellaApp.closeModal();
+    });
+    document.querySelector('#cameraShoot').addEventListener('click', () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      canvas.toBlob(blob => {
+        stopStream();
+        if (!blob) { showCameraUnsupported('Bilden kunde inte skapas. Försök igen eller välj en fil manuellt.'); return; }
+        const file = new File([blob], `ovk-kamera-${Date.now()}.jpg`, { type: 'image/jpeg' });
+        openImportWithCapturedFile(file);
+      }, 'image/jpeg', 0.92);
+    });
+  }
+
+  function startCameraImport() {
+    if (isMobileDevice()) {
+      triggerNativeCameraInput();
+      return;
+    }
+    if (!navigator.mediaDevices?.getUserMedia) {
+      showCameraUnsupported('Den här webbläsaren stöder inte kameraåtkomst. Välj en bild eller fil manuellt.');
+      return;
+    }
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+      .then(showCameraCapture)
+      .catch(() => showCameraUnsupported('Kameran kunde inte startas. Kontrollera behörigheter eller välj en fil manuellt.'));
   }
 
   async function readFileText(file) {
@@ -112,7 +194,22 @@
       }
       return normalizeText(pages.join('\n\n'));
     }
+    if (/^image\/(jpeg|png|webp)$/i.test(file.type)) {
+      return normalizeText(await runOcr(file));
+    }
     return normalizeText(await file.text());
+  }
+
+  async function runOcr(file) {
+    if (!window.Tesseract) {
+      throw new Error('OCR-motorn kunde inte laddas. Prova att uppdatera sidan eller välj en fil manuellt.');
+    }
+    try {
+      const { data } = await window.Tesseract.recognize(file, 'swe');
+      return data.text;
+    } catch (error) {
+      throw new Error('Bilden kunde inte tolkas automatiskt (OCR misslyckades). Prova att ta en tydligare bild eller välj en fil manuellt.');
+    }
   }
 
   function parseDelimited(text, properties) {
@@ -518,6 +615,7 @@
       window.procellaBrfManager?.showSelector?.();
     }
     if (event.target.closest('[data-back-to-import]')) showImportDialog();
+    if (event.target.closest('[data-start-camera-import]')) startCameraImport();
   });
   document.addEventListener('submit', event => {
     if (event.target.id === 'ovkAnalyzeForm') {

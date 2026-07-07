@@ -1,0 +1,12 @@
+# Lokala hemligheter – kopiera från .env.example, committa aldrig den ifyllda versionen.
+.env.local
+.env.local.*
+.env*.local
+
+# Supabase CLI genererar dessa lokalt, de ska inte committas.
+supabase/.branches
+supabase/.temp
+
+# Vanliga OS-/editorfiler.
+.DS_Store
+Thumbs.db

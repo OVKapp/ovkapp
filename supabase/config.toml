@@ -1,0 +1,59 @@
+# Konfiguration för Supabase CLI (lokal utveckling via Docker).
+# Skapad manuellt för Procella OVK eftersom `supabase init` inte kunde köras i den miljö
+# där detta sattes upp (Docker/CLI saknades). Kör `supabase --version` och jämför mot
+# https://supabase.com/docs/guides/local-development/cli/config om fält behöver justeras
+# för din installerade CLI-version.
+#
+# Denna fil styr ENDAST den lokala Docker-miljön. Den påverkar aldrig produktionsprojektet
+# i Supabase Cloud om du inte explicit kör `supabase link` och `supabase db push --linked`.
+
+project_id = "procella-ovk"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[db.pooler]
+enabled = false
+
+[studio]
+enabled = true
+port = 54323
+
+# Lokal e-postfångare (Inbucket/Mailpit) – all utgående e-post fastnar här lokalt,
+# ingen riktig e-post skickas när Resend inte är konfigurerat.
+[inbucket]
+enabled = true
+port = 54324
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"
+
+[auth]
+enabled = true
+# 127.0.0.1 istället för localhost undviker vanliga cookie/CORS-problem i vissa webbläsare.
+site_url = "http://127.0.0.1:8080"
+additional_redirect_urls = ["http://127.0.0.1:8080", "http://localhost:8080"]
+jwt_expiry = 3600
+enable_signup = true
+
+[auth.email]
+# Ingen riktig SMTP lokalt - konton bekräftas direkt så seed-inloggning fungerar utan e-post.
+enable_confirmations = false
+
+[edge_runtime]
+enabled = true
+policy = "oneshot"
+
+[functions]
+# Autodetekteras från supabase/functions/*. Miljövariabler/secrets för funktionerna
+# läses från --env-file (se DEVELOPING.md), aldrig hårdkodade här.

@@ -15,6 +15,18 @@
     ]
   });
 
+  function isProcella(){
+    const role = window.procellaCurrentProfile?.role;
+    return role === 'procella_admin' || role === 'procella_staff';
+  }
+
+  function friendlyErrorMessage(error){
+    if (error?.code === '42501' || /row-level security/i.test(error?.message || '')) {
+      return 'Du saknar behörighet att skapa en ny BRF.';
+    }
+    return error?.message || 'Föreningen kunde inte sparas.';
+  }
+
   function resetExampleContent(){
     const app = window.procellaApp;
     app.buildings.splice(0, app.buildings.length);
@@ -88,7 +100,7 @@
       <div class="brf-picker">
         ${availableBrfs.map(brf => `<button type="button" data-select-brf="${brf.id}" class="${brf.id === activeBrfId ? 'active':''}"><span class="brf-picker-icon">BRF</span><div><strong>${brf.name}</strong><small>${brf.address || brf.city || 'Adress saknas'}</small></div><b>${brf.id === activeBrfId ? 'Vald ✓':'Öppna →'}</b></button>`).join('')}
       </div>
-      <div class="modal-footer"><button class="primary-button" type="button" data-add-brf-from-picker>＋ Lägg till ny BRF</button></div>`);
+      ${isProcella() ? '<div class="modal-footer"><button class="primary-button" type="button" data-add-brf-from-picker>＋ Lägg till ny BRF</button></div>' : ''}`);
   }
 
   async function createBrf(form){
@@ -110,7 +122,7 @@
       activeBrfId = brf.id; localStorage.setItem('procella_active_brf', brf.id);
       window.procellaApp.closeModal(); window.procellaApp.showToast(`${values.name} har lagts till`);
       await loadLiveData();
-    }catch(error){ submit.disabled=false; submit.textContent='Försök igen'; showFormError(submit,error.message); }
+    }catch(error){ submit.disabled=false; submit.textContent='Försök igen'; showFormError(submit,friendlyErrorMessage(error)); }
   }
 
   function showFormError(button,message){
@@ -154,7 +166,7 @@
       button.textContent = 'Försök igen';
       const message = document.createElement('p');
       message.className = 'auth-message error';
-      message.textContent = error.message || 'Föreningen kunde inte sparas.';
+      message.textContent = friendlyErrorMessage(error);
       button.closest('.modal-footer').before(message);
     }
   }
@@ -244,7 +256,10 @@
   document.querySelector('.crumb').addEventListener('click', showBrfSelector);
   window.showPilotImport = showPilotImport;
   window.procellaBrfManager={reload:loadLiveData,showSelector:showBrfSelector,showAdd:showAddBrf,getActive:()=>window.procellaCurrentBrf};
-  window.addEventListener('procella:session', loadLiveData);
+  window.addEventListener('procella:session', () => {
+    document.querySelector('#addPilotBrf').hidden = !isProcella();
+    loadLiveData();
+  });
   window.addEventListener('procella:data-changed', loadLiveData);
   if (window.procellaDb) window.procellaDb.auth.getSession().then(({data}) => { if (data.session) loadLiveData(); });
 })();
